@@ -1,0 +1,51 @@
+package ru.hogwarts.school.controller;
+
+import java.util.Optional;
+
+import org.springframework.http.HttpStatus;
+import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RestController;
+
+import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.service.StudentService;
+
+@RestController
+@RequestMapping("/students")
+public class StudentController {
+
+    private final StudentService service;
+
+    public StudentController(StudentService service) {
+        this.service = service;
+    }
+
+    @GetMapping("{studentId}")
+    public ResponseEntity<Optional<Student>> retrieveStudent(@PathVariable Long studentId) {
+        Optional<Student> studentDetails = service.findStudent(studentId);
+        return studentDetails.isPresent() ? ResponseEntity.ok(studentDetails) : ResponseEntity.notFound().build();
+    }
+
+    @PostMapping
+    public Student addNewStudent(@RequestBody Student student) {
+        return service.addStudent(student);
+    }
+
+    @PutMapping
+    public ResponseEntity<Student> updateStudent(@RequestBody Student student) {
+        Student updatedStudent = service.editStudent(student);
+        return updatedStudent != null ? ResponseEntity.ok(updatedStudent) : ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
+    }
+
+    @DeleteMapping("{studentId}")
+    public ResponseEntity<Void> removeStudent(@PathVariable Long studentId) {
+        service.deleteStudent(studentId);
+        return ResponseEntity.ok().build();
+    }
+}
