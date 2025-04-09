@@ -1,5 +1,6 @@
 package ru.hogwarts.school.service;
 
+import java.util.Collection;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -28,5 +29,17 @@ public class StudentService {
 
     public void deleteStudent(long id) {
         repository.deleteById(id);
+    }
+
+    public Collection<Student> getAllStudents(){
+        return repository.findAll();
+    }
+
+    public Collection<Student> findByFacultyId (long id) {
+        return repository.findByFacultyId(id);
+    }
+
+    public Collection<Student> findByAgeBetween(int min, int max){
+        return repository.findByAgeBetween(min, max);
     }
 }
