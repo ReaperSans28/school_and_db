@@ -29,14 +29,15 @@ public class StudentController {
     }
 
     @GetMapping("{studentId}")
-    public ResponseEntity<Optional<Student>> retrieveStudent(@PathVariable Long studentId) {
+    public ResponseEntity<Optional<Student>> retrieveStudent(@PathVariable long studentId) {
         Optional<Student> studentDetails = service.findStudent(studentId);
         return studentDetails.isPresent() ? ResponseEntity.ok(studentDetails) : ResponseEntity.notFound().build();
     }
 
     @PostMapping
-    public Student addNewStudent(@RequestBody Student student) {
-        return service.addStudent(student);
+    public ResponseEntity<Student> addNewStudent(@RequestBody Student student) {
+        Student addedStudent = service.addStudent(student);
+        return ResponseEntity.status(HttpStatus.CREATED).body(addedStudent);
     }
 
     @PutMapping
@@ -46,13 +47,13 @@ public class StudentController {
     }
 
     @DeleteMapping("{studentId}")
-    public ResponseEntity<Void> removeStudent(@PathVariable Long studentId) {
+    public ResponseEntity<Void> removeStudent(@PathVariable long studentId) {
         service.deleteStudent(studentId);
         return ResponseEntity.ok().build();
     }
 
     @GetMapping("/faculty/{id}")
-    public ResponseEntity<Collection<Student>> getStudentFaculty(@PathVariable Long id) {
+    public ResponseEntity<Collection<Student>> getStudentFaculty(@PathVariable long id) {
         Collection<Student> students = service.findByFacultyId(id);
         if (students.isEmpty()) {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
@@ -61,7 +62,7 @@ public class StudentController {
     }
 
     @GetMapping
-    public ResponseEntity<Collection<Student>> getStudents(@RequestParam(required=false) Integer min, @RequestParam(required=false) Integer max) {
+    public ResponseEntity<Collection<Student>> getStudents(@RequestParam(required = false) Integer min, @RequestParam(required = false) Integer max) {
         if (min != null && max != null) {
             return ResponseEntity.ok(service.findByAgeBetween(min, max));
         }

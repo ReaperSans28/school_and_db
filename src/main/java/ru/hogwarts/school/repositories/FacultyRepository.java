@@ -8,5 +8,5 @@ import java.util.Optional;
 
 public interface FacultyRepository extends JpaRepository<Faculty, Long> {
     Optional<Faculty> searchByNameOrColor(String name, String color);
-    Optional<Faculty> findByStudentId(long id);
+    Optional<Faculty> findByStudents_Id(long id);
 }

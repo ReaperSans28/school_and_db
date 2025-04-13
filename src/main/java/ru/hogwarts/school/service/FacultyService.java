@@ -30,11 +30,11 @@ public class FacultyService {
         repository.deleteById(id);
     }
 
-    public Optional<Faculty> findByStudentId (long id) {
-        return repository.findByStudentId(id);
+    public Optional<Faculty> findByStudentId(long id) {
+        return repository.findByStudents_Id(id);
     }
 
-    public Optional<Faculty> searchByNameOrColor(String name, String color){
+    public Optional<Faculty> searchByNameOrColor(String name, String color) {
         return repository.searchByNameOrColor(name, color);
     }
 }

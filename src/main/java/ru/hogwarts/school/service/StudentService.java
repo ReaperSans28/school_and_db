@@ -31,15 +31,15 @@ public class StudentService {
         repository.deleteById(id);
     }
 
-    public Collection<Student> getAllStudents(){
+    public Collection<Student> getAllStudents() {
         return repository.findAll();
     }
 
-    public Collection<Student> findByFacultyId (long id) {
+    public Collection<Student> findByFacultyId(long id) {
         return repository.findByFacultyId(id);
     }
 
-    public Collection<Student> findByAgeBetween(int min, int max){
+    public Collection<Student> findByAgeBetween(int min, int max) {
         return repository.findByAgeBetween(min, max);
     }
 }
