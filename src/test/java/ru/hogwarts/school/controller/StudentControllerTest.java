@@ -1,106 +1,91 @@
 package ru.hogwarts.school.controller;
 
-import static org.junit.jupiter.api.Assertions.*;
-
-import org.junit.jupiter.api.AfterEach;
 import org.junit.jupiter.api.Test;
+import org.mockito.Mockito;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
-import org.springframework.boot.test.web.client.TestRestTemplate;
-import org.springframework.http.HttpEntity;
-import org.springframework.http.HttpMethod;
-import org.springframework.http.HttpStatus;
-import org.springframework.http.ResponseEntity;
-import ru.hogwarts.school.model.Faculty;
+import org.springframework.boot.test.autoconfigure.web.servlet.WebMvcTest;
+import org.springframework.http.MediaType;
+import org.springframework.test.context.bean.override.mockito.MockitoBean;
+import org.springframework.test.web.servlet.MockMvc;
 import ru.hogwarts.school.model.Student;
+import ru.hogwarts.school.service.StudentService;
 
-import java.util.Collection;
-import java.util.Objects;
+import java.util.Arrays;
 import java.util.Optional;
-import java.util.ArrayList;
-import java.util.List;
 
-@SpringBootTest(webEnvironment = SpringBootTest.WebEnvironment.RANDOM_PORT)
+import static org.mockito.Mockito.*;
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.*;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.*;
+
+@WebMvcTest(StudentController.class)
 class StudentControllerTest {
 
     @Autowired
-    private TestRestTemplate restTemplate;
+    private MockMvc mockMvc;
 
-    private final List<Long> studentIds = new ArrayList<>();
-    private final List<Long> facultyIds = new ArrayList<>();
+    @MockitoBean
+    private StudentService studentService;
 
     @Test
-    void testRetrieveStudent() {
-        Student student = new Student();
-        ResponseEntity<Student> responseCreate = restTemplate.postForEntity("/students", student, Student.class);
-        long studentId = Objects.requireNonNull(responseCreate.getBody()).getId();
-        studentIds.add(studentId);
+    void testRetrieveStudent() throws Exception {
+        when(studentService.findStudent(1)).thenReturn(Optional.of(new Student(1, "Bill Weasley", 25)));
 
-        ResponseEntity<Optional> responseRetrieve = restTemplate.getForEntity("/students/" + studentId, Optional.class);
-        assertEquals(HttpStatus.OK, responseRetrieve.getStatusCode());
+        mockMvc.perform(get("/students/1"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(studentService).findStudent(1);
     }
 
     @Test
-    void testAddNewStudent() {
-        Student student = new Student();
-        ResponseEntity<Student> response = restTemplate.postForEntity("/students", student, Student.class);
-        assertEquals(HttpStatus.CREATED, response.getStatusCode());
-        studentIds.add(Objects.requireNonNull(response.getBody()).getId());
+    void testAddNewStudent() throws Exception {
+        String studentJson = "{\"name\":\"Neville Longbottom\",\"age\":20}";
+        Student student = new Student(1, "Neville Longbottom", 20);
+        when(studentService.addStudent(Mockito.any(Student.class))).thenReturn(student);
+
+        mockMvc.perform(post("/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(studentJson))
+                .andExpect(status().isCreated())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(studentService).addStudent(Mockito.any(Student.class));
     }
 
     @Test
-    void testUpdateStudent() {
-        Student student = new Student();
-        ResponseEntity<Student> responseCreate = restTemplate.postForEntity("/students", student, Student.class);
-        long studentId = Objects.requireNonNull(responseCreate.getBody()).getId();
-        studentIds.add(studentId);
+    void testUpdateStudent() throws Exception {
+        String studentJson = "{\"id\":1,\"name\":\"Lavender Brown\",\"age\":22}";
+        Student updatedStudent = new Student(1, "Lavender Brown", 22);
+        when(studentService.editStudent(Mockito.any(Student.class))).thenReturn(updatedStudent);
 
-        Student updatedStudent = new Student();
-        updatedStudent.setId(studentId);
-        ResponseEntity<Student> response = restTemplate.exchange("/students", HttpMethod.PUT, new HttpEntity<>(updatedStudent), Student.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        mockMvc.perform(put("/students")
+                        .contentType(MediaType.APPLICATION_JSON)
+                        .content(studentJson))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
+
+        verify(studentService).editStudent(Mockito.any(Student.class));
     }
 
     @Test
-    void testRemoveStudent() {
-        Student student = new Student();
-        ResponseEntity<Student> responseCreate = restTemplate.postForEntity("/students", student, Student.class);
-        long studentId = Objects.requireNonNull(responseCreate.getBody()).getId();
-        studentIds.add(studentId);
+    void testRemoveStudent() throws Exception {
+        doNothing().when(studentService).deleteStudent(1);
 
-        ResponseEntity<Void> response = restTemplate.exchange("/students/{studentId}", HttpMethod.DELETE, null, Void.class, studentId);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
+        mockMvc.perform(delete("/students/1"))
+                .andExpect(status().isOk());
+
+        verify(studentService).deleteStudent(1);
     }
 
     @Test
-    void testGetStudentFaculty() {
-        Faculty faculty = new Faculty();
-        ResponseEntity<Faculty> facultyResponse = restTemplate.postForEntity("/faculties", faculty, Faculty.class);
-        long facultyId = Objects.requireNonNull(facultyResponse.getBody()).getId();
-        facultyIds.add(facultyId);
+    void testGetStudentsByAge() throws Exception {
+        when(studentService.findByAgeBetween(18, 25))
+                .thenReturn(Arrays.asList(new Student(1, "Ron Weasley", 19)));
 
-        Student student = new Student();
-        student.setFaculty(facultyResponse.getBody());
-        ResponseEntity<Student> studentResponse = restTemplate.postForEntity("/students", student, Student.class);
-        studentIds.add(Objects.requireNonNull(studentResponse.getBody()).getId());
+        mockMvc.perform(get("/students?min=18&max=25"))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_JSON));
 
-        ResponseEntity<Collection> response = restTemplate.getForEntity("/students/faculty/" + facultyId, Collection.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @Test
-    void testGetStudents() {
-        ResponseEntity<Collection> response = restTemplate.getForEntity("/students?min=18&max=25", Collection.class);
-        assertEquals(HttpStatus.OK, response.getStatusCode());
-    }
-
-    @AfterEach
-    void cleanUp() {
-        for (Long studentId : studentIds) {
-            restTemplate.exchange("/students/{studentId}", HttpMethod.DELETE, null, Void.class, studentId);
-        }
-        for (Long facultyId : facultyIds) {
-            restTemplate.exchange("/faculties/{facultyId}", HttpMethod.DELETE, null, Void.class, facultyId);
-        }
+        verify(studentService).findByAgeBetween(18, 25);
     }
 }
