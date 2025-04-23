@@ -1,6 +1,7 @@
 package ru.hogwarts.school.service;
 
 import java.util.Collection;
+import java.util.List;
 import java.util.Optional;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -41,5 +42,17 @@ public class StudentService {
 
     public Collection<Student> findByAgeBetween(int min, int max) {
         return repository.findByAgeBetween(min, max);
+    }
+    
+    public Integer getTotalCount() {
+        return repository.getTotalCount();
+    }
+    
+    public Double getAverageAge() {
+        return repository.getAverageAge();
+    }
+    
+    public List<Student> getLastFiveStudents() {
+        return repository.getLastFiveStudents();
     }
 }

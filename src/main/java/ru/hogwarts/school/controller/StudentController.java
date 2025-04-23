@@ -2,6 +2,7 @@ package ru.hogwarts.school.controller;
 
 import java.util.Optional;
 import java.util.Collection;
+import java.util.List;
 
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -67,5 +68,20 @@ public class StudentController {
             return ResponseEntity.ok(service.findByAgeBetween(min, max));
         }
         return ResponseEntity.ok(service.getAllStudents());
+    }
+    
+    @GetMapping("/count")
+    public ResponseEntity<Integer> getTotalCount() {
+        return ResponseEntity.ok(service.getTotalCount());
+    }
+    
+    @GetMapping("/average-age")
+    public ResponseEntity<Double> getAverageAge() {
+        return ResponseEntity.ok(service.getAverageAge());
+    }
+    
+    @GetMapping("/last-five")
+    public ResponseEntity<List<Student>> getLastFiveStudents() {
+        return ResponseEntity.ok(service.getLastFiveStudents());
     }
 }
