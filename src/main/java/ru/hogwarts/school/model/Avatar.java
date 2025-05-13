@@ -5,13 +5,16 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.Id;
 import jakarta.persistence.Lob;
 import jakarta.persistence.OneToOne;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.SequenceGenerator;
 
 @Entity
 public class Avatar {
     @Id
-    @GeneratedValue
+    @GeneratedValue(strategy = GenerationType.SEQUENCE, generator = "avatar_seq")
+    @SequenceGenerator(name = "avatar_seq", sequenceName = "avatar_sequence", allocationSize = 1)
     private Long id;
-    
+
     private String filePath;
     private long fileSize;
     private String mediaType;

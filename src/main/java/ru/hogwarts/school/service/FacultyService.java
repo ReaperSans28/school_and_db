@@ -1,5 +1,6 @@
 package ru.hogwarts.school.service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -45,5 +46,19 @@ public class FacultyService {
     public Optional<Faculty> searchByNameOrColor(String name, String color) {
         logger.info("Finding faculties by color and name: " + name + " and color: " + color);
         return repository.searchByNameOrColor(name, color);
+    }
+
+    public String getLongestFacultyName() {
+        List<Faculty> faculties = repository.findAll();
+        String longestName = null;
+        for (Faculty faculty : faculties) {
+            String name = faculty.getName();
+            if (name != null) {
+                if (longestName == null || name.length() > longestName.length()) {
+                    longestName = name;
+                }
+            }
+        }
+        return longestName;
     }
 }

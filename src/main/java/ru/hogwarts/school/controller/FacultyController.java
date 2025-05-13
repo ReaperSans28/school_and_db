@@ -14,7 +14,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.bind.annotation.RequestParam;
 import ru.hogwarts.school.model.Faculty;
-import ru.hogwarts.school.model.Student;
 import ru.hogwarts.school.service.FacultyService;
 
 @RestController
@@ -64,5 +63,10 @@ public class FacultyController {
             return ResponseEntity.status(HttpStatus.BAD_REQUEST).build();
         }
         return ResponseEntity.ok(faculty);
+    }
+
+    @GetMapping("/longest-faculty")
+    public ResponseEntity<String> getLongestFacultyName() {
+        return ResponseEntity.ok(service.getLongestFacultyName());
     }
 }

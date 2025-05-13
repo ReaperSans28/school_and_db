@@ -4,6 +4,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Logger;
+import java.util.stream.Collectors;
 
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -68,5 +69,15 @@ public class StudentService {
     public List<Student> getLastFiveStudents() {
         logger.info("Retrieving last five students");
         return repository.getLastFiveStudents();
+    }
+
+    public List<String> getNamesStartingWithA() {
+        return repository.findAll().stream()
+                .map(Student::getName)
+                .filter(name -> name != null && name.toUpperCase().startsWith("A"))
+                .map(String::toUpperCase)
+                .distinct()
+                .sorted()
+                .collect(Collectors.toList());
     }
 }
