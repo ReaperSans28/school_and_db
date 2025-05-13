@@ -92,9 +92,12 @@ public class StudentController {
     }
 
     @GetMapping("/sum")
-    public ResponseEntity<Integer> getSum() {
+    public ResponseEntity<Long> getSum() {
         int n = 1_000_000;
-        int sum = n * (n + 1) / 2;
+        long sum = 0;
+        for (int i = 1; i <= n; i++) {
+            sum += i;
+        }
         return ResponseEntity.ok(sum);
     }
 }

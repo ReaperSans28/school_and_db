@@ -1,6 +1,8 @@
 package ru.hogwarts.school.service;
 
+import java.util.Comparator;
 import java.util.List;
+import java.util.Objects;
 import java.util.Optional;
 import java.util.logging.Logger;
 
@@ -49,16 +51,12 @@ public class FacultyService {
     }
 
     public String getLongestFacultyName() {
+        logger.info("Getting longest faculty name");
         List<Faculty> faculties = repository.findAll();
-        String longestName = null;
-        for (Faculty faculty : faculties) {
-            String name = faculty.getName();
-            if (name != null) {
-                if (longestName == null || name.length() > longestName.length()) {
-                    longestName = name;
-                }
-            }
-        }
-        return longestName;
+        return faculties.parallelStream()
+                .map(Faculty::getName)
+                .filter(Objects::nonNull)
+                .max(Comparator.comparingInt(String::length))
+                .orElse(null);
     }
 }
