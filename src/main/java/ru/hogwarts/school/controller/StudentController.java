@@ -24,6 +24,7 @@ import ru.hogwarts.school.service.StudentService;
 public class StudentController {
 
     private final StudentService service;
+    private final Object flag = new Object();
 
     public StudentController(StudentService service) {
         this.service = service;
@@ -99,5 +100,77 @@ public class StudentController {
             sum += i;
         }
         return ResponseEntity.ok(sum);
+    }
+
+    @GetMapping("/print-parallel")
+    public void printStudentsParallel() {
+        List<Student> students = (List<Student>) service.getAllStudents();
+
+        if (students.size() < 6) {
+            System.out.println("Недостаточно студентов для выполнения задачи");
+            return;
+        }
+
+        System.out.println(students.get(0).getName());
+        System.out.println(students.get(1).getName());
+
+        Thread thread1 = new Thread(() -> {
+            System.out.println(students.get(2).getName());
+            System.out.println(students.get(3).getName());
+        });
+
+        Thread thread2 = new Thread(() -> {
+            System.out.println(students.get(4).getName());
+            System.out.println(students.get(5).getName());
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            System.out.println("Ошибка: " + e);
+        }
+    }
+
+    private void printNameSynchronized(String name) {
+        synchronized (flag) {
+            System.out.println(name);
+        }
+    }
+
+    @GetMapping("/print-synchronized")
+    public void printStudentsSynchronized() {
+        List<Student> students = (List<Student>) service.getAllStudents();
+
+        if (students.size() < 6) {
+            System.out.println("Недостаточно студентов для выполнения задачи");
+            return;
+        }
+
+        printNameSynchronized(students.get(0).getName());
+        printNameSynchronized(students.get(1).getName());
+
+        Thread thread1 = new Thread(() -> {
+            printNameSynchronized(students.get(2).getName());
+            printNameSynchronized(students.get(3).getName());
+        });
+
+        Thread thread2 = new Thread(() -> {
+            printNameSynchronized(students.get(4).getName());
+            printNameSynchronized(students.get(5).getName());
+        });
+
+        thread1.start();
+        thread2.start();
+
+        try {
+            thread1.join();
+            thread2.join();
+        } catch (InterruptedException e) {
+            System.out.println("Ошибка: " + e);
+        }
     }
 }
