@@ -1,0 +1,7 @@
+databaseChangeLog:
+  - include:
+      file: scripts/create-tables.sql
+      relativeToChangelogFile: true
+  - include:
+      file: scripts/index-practice.sql
+      relativeToChangelogFile: true
